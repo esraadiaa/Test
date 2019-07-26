@@ -1,0 +1,141 @@
+This is Project Assignment 2 for course "Reproducable Research"
+==============================================================
+
+Exploring severe weather events in the U.S. and their resulted damage
+=====================================================================
+
+
+```{r setoptions, echo=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE)
+```
+
+
+```{r Loading the data}
+setwd("C:/Users/ESRAAD/Desktop/Reproducable Research/Week4/")
+
+data <- read.csv(paste0("repdata_data_StormData.csv.bz2"))
+```
+
+
+```{r Transform the data}
+library(dplyr)
+data1 <- select(data, c("EVTYPE", 
+                        "FATALITIES", "INJURIES", 
+                        "PROPDMG", "PROPDMGEXP", 
+                        "CROPDMG", "CROPDMGEXP"))
+names(data1) <- c("EventType", "Fatalities", "Injuries", "PropertyDamage", "PropertyDamageExp", "CropDamage", "CropDamageExp")
+data1$EventType <- gsub("/|(|)", " ", data1$EventType)
+Avalanche <- unique(as.character(data1$EventType[grepl("[Aa][Vv][Aa][Ll][Aa]", data1$EventType) == TRUE]))
+Blizzard <- unique(as.character(data1$EventType[grepl("[Bb][Ll][Ii][Zz]", data1$EventType) == TRUE]))
+Tide <- unique(as.character(data1$EventType[grepl("[Tt][Ii][Dd][Ee]" , data1$EventType) == TRUE]))
+ColdWindChill <- unique(as.character(data1$EventType[grepl("[Cc][Oo][Ll][Dd]" , data1$EventType) | grepl("[Cc][Hh][Ii][Ll][Ll]" , data1$EventType) == TRUE]))
+DebrisFlow <- unique(as.character(data1$EventType[grepl("[Dd][Ee][Bb][Rr][Ii][Ss]" , data1$EventType) == TRUE]))
+Fog <- unique(as.character(data1$EventType[grepl("[Ff][Oo][Gg]" , data1$EventType) == TRUE]))
+Smoke <- unique(as.character(data1$EventType[grepl("[Ss][Mm][Oo][Kk][Ee]" , data1$EventType) == TRUE]))
+Drought <- unique(as.character(data1$EventType[grepl("[Dd][Rr][Oo][Uu][Gg][Hh][Tt]" , data1$EventType) == TRUE]))
+Dust <- unique(as.character(data1$EventType[grepl("[Dd][Uu][Ss][Tt]" , data1$EventType) == TRUE]))
+Heat <- unique(as.character(data1$EventType[grepl("[Hh][Ee][Aa][Tt]" , data1$EventType) == TRUE]))
+Flood <- unique(as.character(data1$EventType[grepl("[Ff][Ll][Oo][Oo][Dd]" , data1$EventType) == TRUE]))
+FrostFreeze <- unique(as.character(data1$EventType[grepl("[Ff][Rr][Ee][Ee][Zz]" , data1$EventType) | grepl("[Ff][Rr][Oo][Ss][Tt]" , data1$EventType) == TRUE]))
+Cloud <- unique(as.character(data1$EventType[grepl("[Cc][Ll][Oo][Uu][Dd]" , data1$EventType) == TRUE]))
+Hail <- unique(as.character(data1$EventType[grepl("[Hh][Aa][Ii][Ll]" , data1$EventType) == TRUE]))
+Rain <- unique(as.character(data1$EventType[grepl("[Rr][Aa][Ii][Nn]" , data1$EventType) == TRUE]))
+Snow <- unique(as.character(data1$EventType[grepl("[Ss][Nn][Oo][Ww]" , data1$EventType) == TRUE]))
+Surf <- unique(as.character(data1$EventType[grepl("[Ss][Uu][Rr][Ff]" , data1$EventType) == TRUE]))
+Wind <- unique(as.character(data1$EventType[grepl("[Ww][Ii][Nn][Dd]" , data1$EventType) == TRUE]))
+HurricaneTyphoon <- unique(as.character(data1$EventType[grepl("[Hh][Uu][Rr][Rr][Ii][Cc][Aa][Nn]" , data1$EventType) | grepl("[Tt][Yy][Pp][Hh][Oo][Oo][Nn]" , data1$EventType) == TRUE]))
+Storm <- unique(as.character(data1$EventType[grepl("[Ss][Tt][Oo][Rr][Mm]" , data1$EventType) == TRUE]))
+Lightning <- unique(as.character(data1$EventType[grepl("[Ll][Ii][Gg][Hh][Tt][Nn][Ii][Nn][Gg]" , data1$EventType) == TRUE]))
+Current <- unique(as.character(data1$EventType[grepl("[Cc][Uu][Rr][Rr][Ee][Nn][Tt]" , data1$EventType) == TRUE]))
+Seiche <- unique(as.character(data1$EventType[grepl("[Ss][Ee][Ii][Cc][Hh][Ee]" , data1$EventType) == TRUE]))
+Sleet <- unique(as.character(data1$EventType[grepl("[Ss][Ll][Ee][Ee][Tt]" , data1$EventType) == TRUE]))
+Tornado <- unique(as.character(data1$EventType[grepl("[Tt][Ii][Dd][Ee]" , data1$EventType) == TRUE]))
+Depression <- unique(as.character(data1$EventType[grepl("[Dd][Ee][Pp][Rr][Ee][Ss][Ss][Ii][Oo][Nn]" , data1$EventType) == TRUE]))
+Tsunami <- unique(as.character(data1$EventType[grepl("[Tt][Ss][Uu][Nn][Aa][Mm][Ii]" , data1$EventType) == TRUE]))
+Volcano <- unique(as.character(data1$EventType[grepl("[Vv][Oo][Ll][Cc][Aa][Nn]" , data1$EventType) == TRUE]))
+Watersprout <- unique(as.character(data1$EventType[grepl("[Ww][Aa][Tt][Ee][Rr]" , data1$EventType) == TRUE]))
+Wildfire <- unique(as.character(data1$EventType[grepl("[Ww][Ii][Ll][Dd][Ff][Ii][Rr][Ee]" , data1$EventType) == TRUE]))
+WinterWeather <- unique(as.character(data1$EventType[grepl("[Ww][Ii][Nn][Tt][Ee][Rr]" , data1$EventType) & grepl("[Ww][Ee][Aa][Tt][Hh][Ee][Rr]" , data1$EventType) == TRUE]))
+
+data1$EventType <- gsub(paste(Tide, collapse = "|"), "Tide", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Avalanche, collapse = "|"), "Avalanche", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Blizzard, collapse = "|"), "Blizzard", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(ColdWindChill, collapse = "|"), "Cold/Wind Chill", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(DebrisFlow, collapse = "|"), "Debris Flow", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Fog, collapse = "|"), "Fog", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Smoke, collapse = "|"), "Smoke", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Drought, collapse = "|"), "Drought", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Dust, collapse = "|"), "Dust", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Heat, collapse = "|"), "Heat", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Flood, collapse = "|"), "Flood", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Cloud, collapse = "|"), "Cloud", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Hail, collapse = "|"), "Hail", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Rain, collapse = "|"), "Rain", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Snow, collapse = "|"), "Snow", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Surf, collapse = "|"), "Surf", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Wind, collapse = "|"), "Wind", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(HurricaneTyphoon, collapse = "|"), "Hurricane/Typhoon", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Storm, collapse = "|"), "Storm", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Lightning, collapse = "|"), "Lightning", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Current, collapse = "|"), "Current", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Seiche, collapse = "|"), "Seiche", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Sleet, collapse = "|"), "Sleet", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Tornado, collapse = "|"), "Tornado", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Depression, collapse = "|"), "Depression", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Tsunami, collapse = "|"), "Tsunami", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Volcano, collapse = "|"), "Volcano", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Watersprout, collapse = "|"), "Watersprout", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(Wildfire, collapse = "|"), "Wildfire", data1$EventType, perl = TRUE)
+data1$EventType <- gsub(paste(WinterWeather, collapse = "|"), "Winter Weather", data1$EventType, perl = TRUE)
+
+
+```
+
+```{r Question 1 - Mean Total Number of Steps Taken per day}
+data1$Health <- data1$Fatalities + data1$Injuries
+OrderedFatalitiesByEvent <- sort(tapply(data1$Health, data1$EventType, sum), decreasing = TRUE)
+barplot(head(OrderedFatalitiesByEvent, 3), ylab = "Fatalities and Injuries", xlab = "Event Type", main = "Most harmful weather events on population health across U.S.")
+MostHarmfulEvent <- names(OrderedFatalitiesByEvent[1])
+Max <- head(OrderedFatalitiesByEvent, 3)
+```
+- The most harmful weather event acrodd U.S. is `r MostHarmfulEvent` with total Fatalities and Injuries of `r Max`.
+
+
+```{r Question 2 - Average daily activity pattern}
+library(ggplot2)
+Average_Steps <- aggregate(steps ~ interval, data, FUN = "mean")
+with(Average_Steps, plot(interval, steps, type = "l", xlab = "Daily Intervals", ylab = "Average Number of Steps"))
+```
+
+
+```{r Question 3 - Imputing Missing Values}
+data1 <- data
+Missing <- is.na(data1$steps)
+NumberMissing <- sum(Missing)
+m <- mean(data1$steps, na.rm = T)
+data1$steps[Missing] <- m
+head(data1)
+Total_Steps1 <- aggregate(steps ~ date, data1, FUN = "sum")
+hist(Total_Steps1$steps, xlab = "Steps taken per day", ylab = "Number of Days", main = "Total Number of seps taken by day")
+mean1 <- mean(Total_Steps1$steps)
+median1 <- median(Total_Steps1$steps)
+```
+- Number of missing values is `r NumberMissing` which will be replaced by the mean which is `r m`.
+- Mean of the number of steps taken per day after imputing missing values is `r mean1`.
+- Median of the number of steps taken per day after imputing missing values is `r median1`.
+
+```{r Question 4 - Differences in activity patterns between weekdays and weekends}
+library(dplyr)
+library(lattice)
+data2 <- data1
+data2$DayType <- factor(c("Weekday", "Weekend"))
+Weekend <- c("Sunday", "Saturday")
+data2$DayType <- ifelse(weekdays(data2$date) %in% Weekend, "Weekend", "Weekday")
+Steps_DayType <- group_by(data2, interval, DayType)
+Average_Steps_DayType <- summarize(Steps_DayType, mean = mean(steps))
+xyplot(mean ~ interval | DayType, data = Average_Steps_DayType, layout = c(1,2), type = "l", xlab = "Daily Intervals", ylab = "Average Number of steps")
+```
+
+
+
