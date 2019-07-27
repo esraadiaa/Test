@@ -4,20 +4,36 @@ This is Project Assignment 2 for course "Reproducable Research"
 Exploring severe weather events in the U.S. and their resulted damage
 =====================================================================
 
+#Synopsis
 
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.
+
+This report explore the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database and answer the following questions:
+
+1- Across the United States, which types of events (as indicated in the Event variable) are most harmful with respect to population health?
+
+2- Across the United States, which types of events have the greatest economic consequences?
+
+This analysis shows that the tornado is most harmful for population health, and the floods results in greatest economic loss.
+
+#1- Setting Options for code chunks
+
+Setting echo to be TRUE in order to display the code chunks and not just the output
 ```{r setoptions, echo=FALSE}
 library(knitr)
 opts_chunk$set(echo = TRUE)
 ```
 
-
+#2- Loading the data into R
 ```{r Loading the data}
 setwd("C:/Users/ESRAAD/Desktop/Reproducable Research/Week4/")
-
 data <- read.csv(paste0("repdata_data_StormData.csv.bz2"))
+head(data, 5)
 ```
 
+#3- Data Processing
 
+After reading the data ana displaying the first 5 lines of the data the following 
 ```{r Transform the data}
 library(dplyr)
 data1 <- select(data, c("EVTYPE", 
